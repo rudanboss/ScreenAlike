@@ -33,7 +33,7 @@ private static MainActivity sAppInstance;
         {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    // The toggle is enabled
+                    // The toggle is enabled successfully
                 } else {
                     // The toggle is disabled
                 }
