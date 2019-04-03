@@ -1,24 +1,29 @@
 package com.example.screenalike;
 
+import android.content.Intent;
+import android.media.projection.MediaProjection;
+import android.media.projection.MediaProjectionManager;
+//import android.os.HandlerThread;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-
-import org.greenrobot.eventbus.EventBus;
-
-import screenAlike.BusMessages;
+import screenAlike.ForegroundServiceHandler;
 import screenAlike.screenHelper;
+//import android.os.Process;
 
-import static screenAlike.BusMessages.MESSAGE_ACTION_STREAMING_STOP;
-import static screenAlike.BusMessages.MESSAGE_ACTION_STREAMING_TRY_START;
+import static com.example.screenalike.ScreenAlike.getProjectionManager;
+import static com.example.screenalike.ScreenAlike.setMediaProjection;
 
 
 public class MainActivity extends AppCompatActivity {
 private screenHelper mscreenHelper;
 private static MainActivity sAppInstance;
+    private static final int REQUEST_CODE_SETTINGS = 2;
+    private static final int REQUEST_CODE_SCREEN_CAPTURE = 1;
+//    private ForegroundServiceHandler mForegroundServiceTaskHandler;
+//        private HandlerThread mHandlerThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,16 +34,55 @@ private static MainActivity sAppInstance;
        TextView myAwesomeTextView = (TextView)findViewById(R.id.editText);
         myAwesomeTextView.setText(mscreenHelper.getServerAddress());
         ToggleButton toggle = (ToggleButton) findViewById(R.id.btn_start_stream);
+//                mHandlerThread = new HandlerThread(
+//                ScreenAlike.class.getSimpleName(),
+//                Process.THREAD_PRIORITY_MORE_FAVORABLE);
+//        mHandlerThread.start();
+//        mForegroundServiceTaskHandler = new ForegroundServiceHandler(mHandlerThread.getLooper());
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    // The toggle is enabled successfully
+                    final MediaProjectionManager projectionManager = getProjectionManager();
+                    if (projectionManager != null) {
+                        startActivityForResult(projectionManager.createScreenCaptureIntent(), REQUEST_CODE_SCREEN_CAPTURE);
+                    }
                 } else {
-                    // The toggle is disabled
+//                    mForegroundServiceTaskHandler.obtainMessage(ForegroundServiceHandler.HANDLER_STOP_STREAMING).sendToTarget();
                 }
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_CODE_SCREEN_CAPTURE:
+                if (resultCode != RESULT_OK) {
+                   // Toast.makeText(this, getString(R.string.main_activity_toast_cast_permission_deny), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                final MediaProjectionManager projectionManager = getProjectionManager();
+                if (projectionManager == null) return;
+                final MediaProjection mediaProjection = projectionManager.getMediaProjection(resultCode, data);
+                if (mediaProjection == null) return;
+                setMediaProjection(mediaProjection);
+                ScreenAlike.getAppData();
+               // EventBus.getDefault().post(new BusMessages(MESSAGE_ACTION_STREAMING_START));
+
+//                if (getAppPreference().isMinimizeOnStream()) {
+//                    startActivity(new Intent(Intent.ACTION_MAIN)
+//                            .addCategory(Intent.CATEGORY_HOME)
+//                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+//                }
+
+                break;
+//            case REQUEST_CODE_SETTINGS:
+//                getAppPreference().updatePreference();
+//                break;
+            default:
+                //FirebaseCrash.log("Unknown request code: " + requestCode);
+        }
     }
 
 
