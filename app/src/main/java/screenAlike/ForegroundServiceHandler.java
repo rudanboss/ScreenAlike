@@ -22,7 +22,7 @@ public final class ForegroundServiceHandler extends Handler {
 
     public boolean mCurrentOrientation;
 
-    ForegroundServiceHandler(final Looper looper) {
+    public ForegroundServiceHandler(final Looper looper) {
         super(looper);
     }
 

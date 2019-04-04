@@ -4,4 +4,5 @@
     <string name="pref_key_server_port" translatable="false">PREF_KEY_SERVER_PORT</string>
     <string name="main_activity_start_stream">Start stream</string>
     <string name="main_activity_stop_stream">Stop stream</string>
+    <string name="main_activity_toast_cast_permission_deny">Screen Cast permission denied</string>
 </resources>
